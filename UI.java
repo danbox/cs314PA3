@@ -75,9 +75,6 @@ public class UI extends JFrame {
                 anyoneRadio = new javax.swing.JRadioButton();
                 friendsOnlyRadio = new javax.swing.JRadioButton();
                 jLabel3 = new javax.swing.JLabel();
-                approvalRequiredRadio = new javax.swing.JRadioButton();
-                noApprovalRadio = new javax.swing.JRadioButton();
-                notBorrowableRadio = new javax.swing.JRadioButton();
                 addSongButton = new javax.swing.JButton();
                 jButton2 = new javax.swing.JButton();
                 createPlaylistButton = new javax.swing.JButton();
@@ -97,9 +94,7 @@ public class UI extends JFrame {
                 friendsPanel = new javax.swing.JPanel();
                 jScrollPane4 = new javax.swing.JScrollPane();
                 friendsList = new javax.swing.JList();
-                addFriendButton = new javax.swing.JButton();
                 removeFriendButton = new javax.swing.JButton();
-                addFriendInput = new javax.swing.JTextField();
                 browseFriendsLibraryButton = new javax.swing.JButton();
                 allUsersPanel = new javax.swing.JPanel();
                 jScrollPane10 = new javax.swing.JScrollPane();
@@ -201,16 +196,6 @@ public class UI extends JFrame {
 
                 jLabel3.setText("Library Availability");
 
-                songPermGroup.add(approvalRequiredRadio);
-                approvalRequiredRadio.setSelected(true);
-                approvalRequiredRadio.setText("Approval Required");
-
-                songPermGroup.add(noApprovalRadio);
-                noApprovalRadio.setText("No Approval");
-
-                songPermGroup.add(notBorrowableRadio);
-                notBorrowableRadio.setText("Not Borrowable");
-
                 addSongButton.setText("Add Song");
                 addSongButton.addActionListener(new java.awt.event.ActionListener() {
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -283,15 +268,11 @@ public class UI extends JFrame {
                         libraryPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(libraryPanelLayout.createSequentialGroup()
                                 .addGap(21, 21, 21)
-                                .addGroup(libraryPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, libraryPanelLayout.createSequentialGroup()
-                                                .addComponent(approvalRequiredRadio)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(noApprovalRadio)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(notBorrowableRadio))
-                                        .addComponent(songPermButton, javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, libraryPanelLayout.createSequentialGroup()
+                                .addGroup(libraryPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(libraryPanelLayout.createSequentialGroup()
+                                                .addComponent(songPermButton, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addGroup(libraryPanelLayout.createSequentialGroup()
                                                 .addGroup(libraryPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                                         .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                         .addComponent(ownedLabel, javax.swing.GroupLayout.Alignment.LEADING)
@@ -338,8 +319,8 @@ public class UI extends JFrame {
                                                         .addGroup(libraryPanelLayout.createSequentialGroup()
                                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                                 .addComponent(downloadSongButton)
-                                                                .addGap(0, 0, Short.MAX_VALUE)))))
-                                .addGap(65, 65, 65))
+                                                                .addGap(0, 0, Short.MAX_VALUE)))
+                                                .addGap(65, 65, 65))))
                 );
                 libraryPanelLayout.setVerticalGroup(
                         libraryPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -380,13 +361,9 @@ public class UI extends JFrame {
                                                         .addComponent(addSongsToPlaylist)
                                                         .addComponent(songDetailsButton)
                                                         .addComponent(downloadSongButton))
-                                                .addGap(33, 33, 33)
-                                                .addComponent(songPermButton)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addGroup(libraryPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                        .addComponent(approvalRequiredRadio)
-                                                        .addComponent(noApprovalRadio)
-                                                        .addComponent(notBorrowableRadio)))
+                                                .addComponent(songPermButton)
+                                                .addGap(57, 57, 57))
                                         .addGroup(libraryPanelLayout.createSequentialGroup()
                                                 .addComponent(jLabel3)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -456,13 +433,6 @@ public class UI extends JFrame {
                 });
                 jScrollPane4.setViewportView(friendsList);
 
-                addFriendButton.setText("Add Friend");
-                addFriendButton.addActionListener(new java.awt.event.ActionListener() {
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                addFriendButtonActionPerformed(evt);
-                        }
-                });
-
                 removeFriendButton.setText("RemoveFriend");
                 removeFriendButton.addActionListener(new java.awt.event.ActionListener() {
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -485,18 +455,12 @@ public class UI extends JFrame {
                                 .addGroup(friendsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addGroup(friendsPanelLayout.createSequentialGroup()
                                                 .addGap(187, 187, 187)
-                                                .addGroup(friendsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 512, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addGroup(friendsPanelLayout.createSequentialGroup()
-                                                                .addGap(69, 69, 69)
-                                                                .addComponent(addFriendInput, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                                .addComponent(addFriendButton)
-                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                                .addComponent(removeFriendButton))))
+                                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 512, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addGroup(friendsPanelLayout.createSequentialGroup()
-                                                .addGap(356, 356, 356)
-                                                .addComponent(browseFriendsLibraryButton)))
+                                                .addGap(288, 288, 288)
+                                                .addComponent(browseFriendsLibraryButton)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(removeFriendButton)))
                                 .addContainerGap(237, Short.MAX_VALUE))
                 );
                 friendsPanelLayout.setVerticalGroup(
@@ -506,12 +470,9 @@ public class UI extends JFrame {
                                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(friendsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(addFriendButton)
                                         .addComponent(removeFriendButton)
-                                        .addComponent(addFriendInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(browseFriendsLibraryButton)
-                                .addContainerGap(193, Short.MAX_VALUE))
+                                        .addComponent(browseFriendsLibraryButton))
+                                .addContainerGap(228, Short.MAX_VALUE))
                 );
 
                 tabs.addTab("Friends", friendsPanel);
@@ -985,20 +946,6 @@ public class UI extends JFrame {
         }
     }//GEN-LAST:event_acceptButtonActionPerformed
 
-    private void addFriendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addFriendButtonActionPerformed
-        String f = addFriendInput.getText();
-        User friend = uMngr.findUser(f);
-        if(friend != null)
-        {
-            currUser.sendInvite(friend);
-            JOptionPane.showMessageDialog(this, "Invite sent");
-        } else
-        {
-            JOptionPane.showMessageDialog(this, "User does not exist");
-        }
-        
-    }//GEN-LAST:event_addFriendButtonActionPerformed
-
     private void removeFriendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeFriendButtonActionPerformed
 //        System.out.println(friendsList.getSelectedValue());
         User friend = uMngr.findUser((String)friendsList.getSelectedValue());
@@ -1198,8 +1145,6 @@ private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
 private void songPermButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_songPermButtonActionPerformed
     List<Song> selected = ownedList.getSelectedValuesList();
-    if(approvalRequiredRadio.isSelected())
-    {
         for(Song s : selected)
         {
 			JPanel panel = new JPanel();
@@ -1209,11 +1154,11 @@ private void songPermButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
 			approval.setSelected(true);
 			JRadioButton noApproval = new JRadioButton("No Approval");
 			JRadioButton notBorrowable = new JRadioButton("Not Borrowable");
-            JTextField friendName = new JTextField();
+//            JTextField friendName = new JTextField();
             JTextField limit = new JTextField();
             JTextField plimit = new JTextField();
             Object[] inputs = {
-                "Friend Name", friendName,
+//                "Friend Name", friendName,
                 "Borrow Limit", limit,
                 "Play Limit", plimit
             };
@@ -1222,14 +1167,8 @@ private void songPermButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
 			panel.add(noApproval);
 			panel.add(notBorrowable);
 			JOptionPane.showOptionDialog(this, panel, "Select permission type", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+			User friend = (User)friendList.getSelectedValue();
             JOptionPane.showMessageDialog(this, inputs);
-			if(!friendName.getText().isEmpty())
-			{
-				if(!currUser.isFriendsWith(uMngr.findUser(friendName.getText())))
-				{
-				   JOptionPane.showMessageDialog(this,"You are not friends with " + friendName.getText()); 
-				} else
-				{
 					if(!limit.getText().matches("[-+]?\\d*\\.?\\d+") || !plimit.getText().matches("[-+]?\\d*\\.?\\d+"))
 					{
 						JOptionPane.showMessageDialog(this, "Invalid limit");
@@ -1238,87 +1177,24 @@ private void songPermButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
 	//                    System.out.println(Integer.parseInt(limit.getText()));
 						if(approval.isSelected())
 						{
-							currUser.getLibrary().setBorrowLimit(friendName.getText(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.APPROVE);
+							currUser.getLibrary().setBorrowLimit(friend.toString(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.APPROVE);
 						} else if(noApproval.isSelected())
 						{
-							currUser.getLibrary().setBorrowLimit(friendName.getText(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.LIMIT);
+							currUser.getLibrary().setBorrowLimit(friend.toString(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.LIMIT);
 						} else //not borrowable
 						{
-							currUser.getLibrary().setBorrowLimit(friendName.getText(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.NO);
+							currUser.getLibrary().setBorrowLimit(friend.toString(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.NO);
 						}
-						currUser.getLibrary().setPlayLimit(friendName.getText(), s.getName(), Integer.parseInt(plimit.getText()));
+						currUser.getLibrary().setPlayLimit(friend.toString(), s.getName(), Integer.parseInt(plimit.getText()));
 					}
-				}
-			} else
-			{
-				JOptionPane.showMessageDialog(this, "Invalid FriendName");
-			}
+				
 //            currUser.getLibrary().set
         
 //            currUser.getLibrary().set
-        }
-    } else if(noApprovalRadio.isSelected())
-    {
-        for(Song s : selected)
-        {
-            JTextField friendName = new JTextField();
-            JTextField limit = new JTextField();
-            JTextField plimit = new JTextField();
-            Object[] inputs = {
-                "Friend Name", friendName,
-                "Borrow Limit", limit,
-                "Play Limit", plimit
-            };
-            JOptionPane.showMessageDialog(this, inputs);
-            if(!currUser.isFriendsWith(uMngr.findUser(friendName.getText())))
-            {
-               JOptionPane.showMessageDialog(this,"You are not friends with " + friendName.getText()); 
-            } else
-            {
-                if(!limit.getText().matches("[-+]?\\d*\\.?\\d+") || !plimit.getText().matches("[-+]?\\d*\\.?\\d+"))
-                {
-                    JOptionPane.showMessageDialog(this, "Invalid limit");
-                } else
-                {
-                    System.out.println(Integer.parseInt(limit.getText()));
-                    currUser.getLibrary().setBorrowLimit(friendName.getText(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.LIMIT);
-                    currUser.getLibrary().setPlayLimit(friendName.getText(), s.getName(), Integer.parseInt(plimit.getText()));
-                }
-            }
+        
+    
 //            currUser.getLibrary().set
-        }
-    }
-    else if(notBorrowableRadio.isSelected())
-    {
-        for(Song s : selected)
-
-        {
-            JTextField friendName = new JTextField();
-            JTextField limit = new JTextField();
-            JTextField plimit = new JTextField();
-            Object[] inputs = {
-                "Friend Name", friendName,
-                "Borrow Limit", limit,
-                "Play Limit", plimit
-            };
-            JOptionPane.showMessageDialog(this, inputs);
-            if(!currUser.isFriendsWith(uMngr.findUser(friendName.getText())))
-            {
-               JOptionPane.showMessageDialog(this,"You are not friends with " + friendName.getText()); 
-            } else
-            {
-                if(!limit.getText().matches("[-+]?\\d*\\.?\\d+") || !plimit.getText().matches("[-+]?\\d*\\.?\\d+"))
-                {
-                    JOptionPane.showMessageDialog(this, "Invalid limit");
-                } else
-                {
-                    System.out.println(Integer.parseInt(limit.getText()));
-                    currUser.getLibrary().setBorrowLimit(friendName.getText(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.NO);
-                    currUser.getLibrary().setPlayLimit(friendName.getText(), s.getName(), Integer.parseInt(plimit.getText()));
-                }
-            }
-//            currUser.getLibrary().set
-        }
+        
     }
 }//GEN-LAST:event_songPermButtonActionPerformed
 
@@ -1892,8 +1768,6 @@ private void takeBackButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
         private javax.swing.JList AllOnlineUsersList;
         private javax.swing.JButton acceptButton;
         private javax.swing.JButton addAsFriendButton;
-        private javax.swing.JButton addFriendButton;
-        private javax.swing.JTextField addFriendInput;
         private javax.swing.JButton addSongButton;
         private javax.swing.JButton addSongsToPlaylist;
         private javax.swing.JRadioButton allLibrariesRadio;
@@ -1901,7 +1775,6 @@ private void takeBackButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
         private javax.swing.JPanel allUsersPanel;
         private javax.swing.JButton allowBorrowButton;
         private javax.swing.JRadioButton anyoneRadio;
-        private javax.swing.JRadioButton approvalRequiredRadio;
         private javax.swing.JButton borrowButton;
         private javax.swing.JList borrowRequestList;
         private javax.swing.JPanel borrowRequestPanel;
@@ -1942,9 +1815,7 @@ private void takeBackButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
         private javax.swing.JPanel loginPane;
         private javax.swing.JButton logoutButton;
         private javax.swing.JPanel logoutPane;
-        private javax.swing.JRadioButton noApprovalRadio;
         private javax.swing.JRadioButton noAvailabilityRadio;
-        private javax.swing.JRadioButton notBorrowableRadio;
         private javax.swing.JRadioButton ownLibraryRadio;
         private javax.swing.JLabel ownedLabel;
         private javax.swing.JList ownedList;
