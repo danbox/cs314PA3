@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,17 +28,19 @@ public class Library implements Iterable<Song>
 	private List<Song> owned;
 	private Map<Song, Pair<Integer, User>> borrowed;
 	private List<Song> loaned;
-        private List<Pair<User, Song>> borrowRequests;
+	private List<Pair<User, Song>> borrowRequests;
+	private List<Song> downloaded;
+
+	private List<Pair<User, Boolean>> downloadPermissions;
 	
 	private Map<String, Library> playlists;
 	private User owner;
 	
-        private Dictionary<Song, Queue<User>> waitingList;
+	private Dictionary<Song, Queue<User>> waitingList;
 	
 	private Dictionary<String, Dictionary<String, Pair<borrowSetting, Integer>>> friendBorrowLimit;
 	private Dictionary<String, Dictionary<String, Integer>> friendPlayLimit;
 	private Song listeningTo;
-	private Song downloaded;
 	
 	//public methods
 	
@@ -66,6 +69,9 @@ public class Library implements Iterable<Song>
 		this.borrowed = new Hashtable<Song, Pair<Integer, User>>();
 		this.playlists = new Hashtable<String, Library>();
 		this.owner = (User) owner;
+		this.downloadPermissions = new ArrayList<Pair<User, Boolean>>();
+		
+		this.downloaded = new ArrayList<Song>();
 		
     	this.waitingList = new Hashtable<Song, Queue<User>>();
 		
@@ -265,6 +271,32 @@ public class Library implements Iterable<Song>
 			
 	}
 
+	public boolean getDownloadPermission(User user)
+	{
+		
+		for(Pair<User, Boolean> pair : this.downloadPermissions)
+		{
+			if(pair.fst.equals(user))
+			{
+				return pair.snd;
+			}
+		}
+		this.downloadPermissions.add(new Pair<User, Boolean>(user, true));
+		return true;
+	}
+	
+	public void setDownloadPermission(User user, boolean perm)
+	{
+		for(Pair<User, Boolean> pair : this.downloadPermissions)
+		{
+			if(pair.fst.equals(user))
+			{
+				pair.snd = perm;
+			}
+		}
+		this.downloadPermissions.add(new Pair<User, Boolean>(user, perm));
+	}
+
 	//add song to user library
 	public void addSong(Song a)
 	{
@@ -300,6 +332,11 @@ public class Library implements Iterable<Song>
 	public int getPlaysLeftOfBorrowed(Song song)
 	{
 		return this.borrowed.get(song).fst;
+	}
+
+	public void setPlaysToZero(Song song)
+	{
+		this.borrowed.get(song).fst = 0;
 	}
 	
 	public Song getBorrowedSong(String songName, String artist)
@@ -355,6 +392,16 @@ public class Library implements Iterable<Song>
 			
 			destUser.getLibrary().addBorrowedSong(song, limit, this.owner);
 		}
+	}
+	
+	public boolean hasWaitingList(Song s)
+	{
+		return this.waitingList.get(s) != null;
+	}
+	
+	public Queue<User> getWaitingListUsers(Song s)
+	{
+		return this.waitingList.get(s);
 	}
 	
 	public boolean returnBorrow(User borrower, Song song)
@@ -492,7 +539,7 @@ public class Library implements Iterable<Song>
 	{
 		Pair<borrowSetting, Integer> limit = getSongBorrowLimit(friend, song);
 		
-		if (limit.fst != borrowSetting.NO && limit.snd > 0)
+		if (limit.fst != borrowSetting.NO && limit.snd > 0 && !this.hasDownloadedSong(song))
 			return true;
 		else
 			return false;
@@ -505,10 +552,81 @@ public class Library implements Iterable<Song>
 	public boolean isAvailableToPlay(Song song)
 	{
 		//if the song is in possession not loaned and no other song is playing
-		if (this.contains(song) && !this.loaned.contains(song) && this.listeningTo == null)
+		if (this.contains(song) && !this.loaned.contains(song) && this.listeningTo == null && !this.hasDownloadedSong(song))
 		{
 			return true;
 		} else return false;
+	}
+
+	public List<Song> downloaded()
+	{
+		return this.downloaded;
+	}
+	
+	public boolean hasDownloadedSong(Song s)
+	{
+		return this.downloaded.contains(s);
+	}
+
+	public boolean isAvailableToDownload(Song song)
+	{
+		if(this.contains(song) && !this.loaned.contains(song) && this.listeningTo == null && !this.hasDownloadedSong(song))
+		{
+			if(this.borrowed().contains(song))
+			{
+				if(this.getOwnerofBorrowed(song).getLibrary().getDownloadPermission(owner))
+				{
+					return true;
+				} else
+				{
+					return false;
+				}
+			} else
+			{
+				return true;
+			}
+		} else return false;
+	}
+
+	public void download(Song s)
+	{
+		if(isAvailableToDownload(s))
+		{
+			System.out.println("THIS");
+			this.downloaded.add(s);
+		}
+	}
+	
+	public void expireDownload(Song s)
+	{
+		if(this.hasDownloadedSong(s))
+		{
+			this.downloaded.remove(s);
+			
+			if(this.isBorrowed(s))
+			{
+				if(this.getPlaysLeftOfBorrowed(s) == 0)
+				{
+					this.getOwnerofBorrowed(s).getLibrary().returnBorrow(owner, s);
+				}
+			}
+		}
+		
+	}
+
+	public void expireAllDownloads()
+	{
+		for(Song s : this.downloaded)
+		{
+			if(this.isBorrowed(s))
+			{
+				if(this.getPlaysLeftOfBorrowed(s) == 0)
+				{
+					this.getOwnerofBorrowed(s).getLibrary().returnBorrow(owner, s);
+				}
+			}
+		}
+		this.downloaded.clear();
 	}
 	
 	public boolean isOwned(Song song)

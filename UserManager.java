@@ -43,6 +43,15 @@ public class UserManager implements Iterable<User>
     {
     	users.put(u.getName(), u);
     }
+	
+	public void expireAllDownloads()
+	{
+		List<User> all = this.toList();
+		for(User u : all)
+		{
+			u.getLibrary().expireAllDownloads();
+		}
+	}
     
     public User findUser(String name)
     {

@@ -18,6 +18,9 @@ public class Song
     //private data members
 	private String name;
 	private Metadata data;
+	private int downloadCount;
+	private int playedCount;
+	private int borrowedCount;
 	
 	//public methods
 	
@@ -59,7 +62,36 @@ public class Song
 			return this.name;
 		return this.data.get(key);
 	}
-	
+
+	public void incrementDownloadedCount()
+	{
+		this.downloadCount++;
+	}
+
+	public void incrementPlayedCount()
+	{ 
+		this.playedCount++;
+	}
+
+	public void incrementBorrowedCount()
+	{
+		this.borrowedCount++;
+	}
+
+	public int getDownloadedCount()
+	{
+		return this.downloadCount;
+	}
+
+	public int getPlayedCount()
+	{
+		return this.playedCount;
+	}
+
+	public int getBorrowedCount()
+	{
+		return this.borrowedCount;
+	}
 	public String getName() {
 		return this.name;
 	}
@@ -95,6 +127,12 @@ public class Song
 				return s1.get("artist").compareToIgnoreCase(s2.get("artist"));
 			else if (sortBy.equalsIgnoreCase("album"))
 				return s1.get("album").compareToIgnoreCase(s2.get("album"));
+			else if(sortBy.equalsIgnoreCase("played"))
+				return new Integer(s1.getPlayedCount()).compareTo(s2.getPlayedCount());
+			else if(sortBy.equalsIgnoreCase("borrowed"))
+				return new Integer(s1.getBorrowedCount()).compareTo(s2.getBorrowedCount());
+			else if(sortBy.equalsIgnoreCase("downloaded"))
+				return new Integer(s1.getDownloadedCount()).compareTo(s2.getBorrowedCount());
 			else
 				return 0;
 		}

@@ -19,6 +19,7 @@ public class User
 	private Library mylibrary;
 	private List<User> invites;
 	private List<User> myfriends;
+	private List<String> notifications;
 	private PermType libpermview;
 	
 	//public methods
@@ -29,8 +30,30 @@ public class User
 		
 		this.invites = new LinkedList<User>();
 		this.myfriends = new LinkedList<User>();
+
+		this.notifications = new LinkedList<String>();
 		
 		this.mylibrary = new Library(this);
+	}
+
+	public void addNotification(String notification)
+	{
+		notifications.add(notification);
+	}
+
+	public List<String> getNotifications()
+	{
+		return notifications;
+	}
+	
+	public boolean hasNotifications()
+	{
+		return !notifications.isEmpty();
+	}
+
+	public void clearNotifications()
+	{
+		notifications.clear();
 	}
 
 	//accept an invite from the user(string) if invite exist
