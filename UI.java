@@ -298,6 +298,11 @@ public class UI extends JFrame {
         });
 
         expireDownloadButton.setText("Expire Download");
+        expireDownloadButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                expireDownloadButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout libraryPanelLayout = new javax.swing.GroupLayout(libraryPanel);
         libraryPanel.setLayout(libraryPanelLayout);
@@ -1201,15 +1206,16 @@ private void deletePlaylistButtonActionPerformed(java.awt.event.ActionEvent evt)
 }//GEN-LAST:event_deletePlaylistButtonActionPerformed
 
 private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
-	if(!currUser.getFriends().isEmpty())
-	{
-		String search = searchInput.getText();
-		if (allLibrariesRadio.isSelected()) {
+	String search = searchInput.getText();
+	if (allLibrariesRadio.isSelected()) {
+//		if(!currUser.getFriends().isEmpty())
+//		{
 			Hashtable<String, User> users = uMngr.getUsers();
 			Set<String> keys = users.keySet();
 	//        Vector<String> tmp = new Vector<String>();
 			Vector<Song> tmp = new Vector<Song>();
-			for (String key : keys) {
+			for (String key : keys)
+			{
 				User u = uMngr.findUser(key);
 				if (u.getPerm() != PermType.NONE || (u.getPerm() == PermType.FRIENDS && !currUser.isFriendsWith(u))) {
 					//            tmp.add(key);
@@ -1225,12 +1231,28 @@ private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 				}
 				this.searchList.setListData(tmp.toArray());
 			}
-		} else if (friendsLibrariesRadio.isSelected()) {
+//		} else
+//		{
+//			Vector<Song> tmp = new Vector<Song>();
+//			List<Song> owned = currUser.getLibrary().owned();
+//			for (Song s : owned) {
+//				if (s.getName().toLowerCase().startsWith(search.toLowerCase()) || s.getMetaData().get("artist").toLowerCase().startsWith(search.toLowerCase())) {
+//	//                tmp.add(" " + s.toString());
+//					tmp.add(s);
+//				}
+//			}
+//			this.searchList.setListData(tmp.toArray());
+//		}
+	} else if (friendsLibrariesRadio.isSelected()) {
+		if(!currUser.getFriends().isEmpty())
+		{
 			List<User> friends = currUser.getFriends();
 			Vector<Song> tmp = new Vector<Song>();
-			for (User u : friends) {
+			for (User u : friends) 
+			{
 	//            tmp.add(u.getName());
-				if (u.getPerm() != PermType.NONE) {
+				if (u.getPerm() != PermType.NONE) 
+				{
 					List<Song> owned = u.getLibrary().owned();
 					for (Song s : owned) {
 						if (s.getName().toLowerCase().startsWith(search.toLowerCase()) || s.getMetaData().get("artist").toLowerCase().startsWith(search.toLowerCase())) 
@@ -1240,23 +1262,25 @@ private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 						}
 					}
 				}
-				this.searchList.setListData(tmp.toArray());
-			}
-		} else if (ownLibraryRadio.isSelected()) {
-			Vector<Song> tmp = new Vector<Song>();
-			List<Song> owned = currUser.getLibrary().owned();
-			for (Song s : owned) {
-				if (s.getName().toLowerCase().startsWith(search.toLowerCase()) || s.getMetaData().get("artist").toLowerCase().startsWith(search.toLowerCase())) {
-	//                tmp.add(" " + s.toString());
-					tmp.add(s);
-				}
+
 			}
 			this.searchList.setListData(tmp.toArray());
-		} 
-	} else
-	{
-		this.searchList.setListData(currUser.getFriends().toArray());
-	}
+		} else
+		{
+			Vector<String> empty = new Vector<String>();
+			this.searchList.setListData(empty.toArray());
+		}
+	} else if (ownLibraryRadio.isSelected()) {
+		Vector<Song> tmp = new Vector<Song>();
+		List<Song> owned = currUser.getLibrary().owned();
+		for (Song s : owned) {
+			if (s.getName().toLowerCase().startsWith(search.toLowerCase()) || s.getMetaData().get("artist").toLowerCase().startsWith(search.toLowerCase())) {
+//                tmp.add(" " + s.toString());
+				tmp.add(s);
+			}
+		}
+		this.searchList.setListData(tmp.toArray());
+	} 
 }//GEN-LAST:event_searchButtonActionPerformed
 
 private void addSongButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSongButtonActionPerformed
@@ -1617,8 +1641,14 @@ private void takeBackButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
 				if (currUser.isFriendsWith(friend)) {
 					JOptionPane.showMessageDialog(this, "You are already friends with " + friend);
 				} else {
-					currUser.sendInvite(friend);
-					JOptionPane.showMessageDialog(this, "Invite sent to " + friend);
+					if(!currUser.getInvites().contains(friend))
+					{
+						currUser.sendInvite(friend);
+						JOptionPane.showMessageDialog(this, "Invite sent to " + friend);
+					} else
+					{
+						JOptionPane.showMessageDialog(this, friend + " has already sent you a friend requests, please accept it.");
+					}
 				}
 			} else {
 				JOptionPane.showMessageDialog(this, "User does not exist");
@@ -1969,68 +1999,94 @@ private void takeBackButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
 		this.loanedList.setListData(currUser.getLibrary().loaned().toArray());
     }//GEN-LAST:event_passTimeButtonActionPerformed
 
+    private void expireDownloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_expireDownloadButtonActionPerformed
+		Song selected = (Song)this.downloadedList.getSelectedValue();
+		if(selected != null)
+		{
+			currUser.getLibrary().expireDownload(selected);
+		} else
+		{
+			JOptionPane.showMessageDialog(this, "Nothing Selected.");
+		}
+		this.downloadedList.setListData(currUser.getLibrary().downloaded().toArray());
+		this.borrowedList.setListData(currUser.getLibrary().borrowed().toArray());
+		this.loanedList.setListData(currUser.getLibrary().loaned().toArray());
+    }//GEN-LAST:event_expireDownloadButtonActionPerformed
+
 	private void parseFile(String file) {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String line;
+			String line, userLogin, userData;
 			HashMap<User, String[]> friendsToAdd = new HashMap<User, String[]>();
 
 			while ((line = reader.readLine()) != null) {
 				//remove white space
 				line = line.replaceAll("\t", "");
-				line = line.replaceAll(" ", "");
+				if (line.isEmpty()) break;
+				
+				userLogin = line.substring(0, line.indexOf('[', 0));
+				userData = line.substring(line.indexOf('[', 0), line.length());
+				userLogin = userLogin.replaceAll(" ", "");
 
-				if (line.isEmpty()) //break if line is empty
-				{
-					break;
-				}
+				if (userLogin.isEmpty() || userData.isEmpty()) break; //break if line is empty
 
 				//username
 				int lowerBound = 0;
-				int upperBound = line.indexOf(',');
-				String user = line.substring(lowerBound, upperBound);
-//                System.out.println(user);
+				int upperBound = userLogin.indexOf(',');
+				String user = userLogin.substring(lowerBound, upperBound);
 
 				//password
 				lowerBound = ++upperBound;
-				upperBound = line.indexOf('[', lowerBound);
-				String pw = line.substring(lowerBound, upperBound);
-//                System.out.println(pw);
+				String pw = userLogin.substring(lowerBound, userLogin.length());
 
+				//if user or pw is empty, create default admin user and return
+				if(user.isEmpty()) {
+					user = "default";
+				}
+				if(pw.isEmpty()) {
+					pw = "default";
+				}
 				//create user
 				User u = new User(user, pw);
 				uMngr.addUser(u);
 
 				//song metadata
-				lowerBound = ++upperBound;
-				upperBound = line.indexOf(']', lowerBound);
-				String songsFull = line.substring(lowerBound, upperBound);
-				String[] songs = songsFull.split("\\|");
-				for (int i = 0; i < songs.length; ++i) {
-					String[] data = songs[i].split(",");
-					Metadata m = new Metadata();
-
-					//create metadata
-					if (!data[0].isEmpty() || !data[1].isEmpty()) {
-						m.put("name", data[0]);
-						m.put("artist", data[1]);
-						m.put("album", data[2]);
-						m.put("year", data[3]);
-						m.put("composer", data[4]);
-						m.put("genre", data[5]);
+				lowerBound = 1;
+				upperBound = userData.indexOf(']', lowerBound);
+				if(upperBound != lowerBound) {
+					String songsFull = userData.substring(lowerBound, upperBound);
+					String[] songs = songsFull.split("\\|");
+					//remove leading spaces
+					for (int i = 0; i < songs.length; ++i) {
+						String[] data = songs[i].split(",");
+						for (int x = 0; x < data.length; x++) {
+							while (!data[x].isEmpty()) {
+								if (data[x].charAt(0) == ' ') {
+									data[x] = data[x].substring(1);
+								} else break;
+							}
+						}
+						//don't add song if it doesn't have name or artist
+						if (!data[0].isEmpty() && !data[1].isEmpty()) {
+							Metadata m = new Metadata();
+							m.put("name", data[0]);
+							m.put("artist", data[1]);
+							m.put("album", data[2]);
+							m.put("year", data[3]);
+							m.put("composer", data[4]);
+							m.put("genre", data[5]);
+							//create song
+							Song s = new Song(m);
+							u.getLibrary().addSong(s);
+						}
 					}
-
-					//create song
-					Song s = new Song(m);
-//                    mMngr.getGlobalLibrary().addSong(s);
-					u.getLibrary().addSong(s);
-
 				}
 
 				//friends
 				lowerBound = upperBound + 2;
-				upperBound = line.indexOf(')', lowerBound);
-				String friendsFull = line.substring(lowerBound, upperBound);
+				upperBound = userData.indexOf(')', lowerBound);
+				String friendsFull = userData.substring(lowerBound, upperBound);
+				friendsFull = friendsFull.replaceAll(" ", "");
 				String[] friends = friendsFull.split(",");
 
                 //Not all users are loaded yet
@@ -2052,8 +2108,12 @@ private void takeBackButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		if(uMngr.getUsers().isEmpty()) {
+			User admin = new User("admin", "admin");
+			uMngr.addUser(admin);
+		}
 	}
-
+	
 	public static void main(final String args[]) {
 		/* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
