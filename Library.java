@@ -160,6 +160,11 @@ public class Library implements Iterable<Song>
 	{
 		return getSongPlayLimit("default","default");
 	}
+
+	public Song playing()
+	{
+		return this.listeningTo;
+	}
 	public void setBorrowLimit(User friend, Song song, int limit, borrowSetting setting)
 	{
 		setBorrowLimit(friend.getName(), song.getName(), limit, setting);

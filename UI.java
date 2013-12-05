@@ -144,6 +144,7 @@ public class UI extends JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         loginButton = new javax.swing.JButton();
+        welcomeLabel = new javax.swing.JLabel();
         logoutPane = new javax.swing.JPanel();
         logoutButton = new javax.swing.JButton();
 
@@ -863,7 +864,10 @@ public class UI extends JFrame {
                         .addGap(154, 154, 154))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, loginPaneLayout.createSequentialGroup()
                         .addComponent(titleLabel)
-                        .addGap(272, 272, 272))))
+                        .addGap(272, 272, 272))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, loginPaneLayout.createSequentialGroup()
+                        .addComponent(welcomeLabel)
+                        .addGap(235, 235, 235))))
         );
         loginPaneLayout.setVerticalGroup(
             loginPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -876,7 +880,9 @@ public class UI extends JFrame {
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
                     .addComponent(loginButton))
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(welcomeLabel)
+                .addContainerGap(27, Short.MAX_VALUE))
         );
 
         logoutButton.setText("Logout");
@@ -937,6 +943,8 @@ public class UI extends JFrame {
 		char[] p = passwordInput.getPassword();
 		String password = new String(p);
 		currUser = uMngr.findUser(username);
+		usernameInput.setText("");
+		passwordInput.setText("");
 		if (currUser != null && currUser.checkPassword(password.toString()))
 		{
 			this.tabs.setVisible(true);
@@ -1065,9 +1073,20 @@ public class UI extends JFrame {
 //				System.out.println(topPlayed.get(i) + "" + topPlayed.get(i).getPlayedCount());
 			}
 			this.topDownloadedList.setListData(top5Downloaded.toArray());
+
+			if(currUser.getLibrary().isPlayingSong())
+			{
+				this.currentlyPlayingLabel.setText("Currently Playing: " + currUser.getLibrary().playing().getName());
+			} else
+			{
+				this.currentlyPlayingLabel.setText("");
+			}
+
+			this.welcomeLabel.setText("Welcome, " + currUser.getName());
 		} else {
 			JOptionPane.showMessageDialog(this, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);
 		}
+	
 
 
     }//GEN-LAST:event_loginButtonActionPerformed
@@ -1077,6 +1096,7 @@ public class UI extends JFrame {
 		this.tabs.setVisible(false);
 		this.loginPane.setVisible(true);
 		this.logoutPane.setVisible(false);
+		this.welcomeLabel.setText("");
     }//GEN-LAST:event_logoutButtonActionPerformed
 
     private void acceptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acceptButtonActionPerformed
@@ -1159,7 +1179,13 @@ private void deletePlaylistButtonActionPerformed(java.awt.event.ActionEvent evt)
 
 		if (result == JOptionPane.OK_OPTION) {
 			String p = (String) list.getSelectedValue();
-			currUser.getLibrary().removePlaylist(p);
+			if(p != null)
+			{
+				currUser.getLibrary().removePlaylist(p);
+			} else
+			{
+				JOptionPane.showMessageDialog(this, "No playlist selected.");
+			}
 		}
 	}
 
@@ -1175,53 +1201,61 @@ private void deletePlaylistButtonActionPerformed(java.awt.event.ActionEvent evt)
 }//GEN-LAST:event_deletePlaylistButtonActionPerformed
 
 private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
-	String search = searchInput.getText();
-	if (allLibrariesRadio.isSelected()) {
-		Hashtable<String, User> users = uMngr.getUsers();
-		Set<String> keys = users.keySet();
-//        Vector<String> tmp = new Vector<String>();
-		Vector<Song> tmp = new Vector<Song>();
-		for (String key : keys) {
-			User u = uMngr.findUser(key);
-			if (u.getPerm() != PermType.NONE || (u.getPerm() == PermType.FRIENDS && !currUser.isFriendsWith(u))) {
-				//            tmp.add(key);
+	if(!currUser.getFriends().isEmpty())
+	{
+		String search = searchInput.getText();
+		if (allLibrariesRadio.isSelected()) {
+			Hashtable<String, User> users = uMngr.getUsers();
+			Set<String> keys = users.keySet();
+	//        Vector<String> tmp = new Vector<String>();
+			Vector<Song> tmp = new Vector<Song>();
+			for (String key : keys) {
+				User u = uMngr.findUser(key);
+				if (u.getPerm() != PermType.NONE || (u.getPerm() == PermType.FRIENDS && !currUser.isFriendsWith(u))) {
+					//            tmp.add(key);
 
-				List<Song> owned = u.getLibrary().owned();
-				for (Song s : owned) {
-					if (s.getName().toLowerCase().startsWith(search.toLowerCase()) || s.getMetaData().get("artist").toLowerCase().startsWith(search.toLowerCase())) {
-						//                    tmp.add(" " + s.toString());
-						tmp.add(s);
+					List<Song> owned = u.getLibrary().owned();
+					for (Song s : owned) {
+						if (s.getName().toLowerCase().startsWith(search.toLowerCase()) || s.getMetaData().get("artist").toLowerCase().startsWith(search.toLowerCase())) 
+						{
+							//                    tmp.add(" " + s.toString());
+							tmp.add(s);
+						}
 					}
+				}
+				this.searchList.setListData(tmp.toArray());
+			}
+		} else if (friendsLibrariesRadio.isSelected()) {
+			List<User> friends = currUser.getFriends();
+			Vector<Song> tmp = new Vector<Song>();
+			for (User u : friends) {
+	//            tmp.add(u.getName());
+				if (u.getPerm() != PermType.NONE) {
+					List<Song> owned = u.getLibrary().owned();
+					for (Song s : owned) {
+						if (s.getName().toLowerCase().startsWith(search.toLowerCase()) || s.getMetaData().get("artist").toLowerCase().startsWith(search.toLowerCase())) 
+						{
+	//                    tmp.add(" " + s.toString());
+							tmp.add(s);
+						}
+					}
+				}
+				this.searchList.setListData(tmp.toArray());
+			}
+		} else if (ownLibraryRadio.isSelected()) {
+			Vector<Song> tmp = new Vector<Song>();
+			List<Song> owned = currUser.getLibrary().owned();
+			for (Song s : owned) {
+				if (s.getName().toLowerCase().startsWith(search.toLowerCase()) || s.getMetaData().get("artist").toLowerCase().startsWith(search.toLowerCase())) {
+	//                tmp.add(" " + s.toString());
+					tmp.add(s);
 				}
 			}
 			this.searchList.setListData(tmp.toArray());
-		}
-	} else if (friendsLibrariesRadio.isSelected()) {
-		List<User> friends = currUser.getFriends();
-		Vector<Song> tmp = new Vector<Song>();
-		for (User u : friends) {
-//            tmp.add(u.getName());
-			if (u.getPerm() != PermType.NONE) {
-				List<Song> owned = u.getLibrary().owned();
-				for (Song s : owned) {
-					if (s.getName().toLowerCase().startsWith(search.toLowerCase()) || s.getMetaData().get("artist").toLowerCase().startsWith(search.toLowerCase())) {
-//                    tmp.add(" " + s.toString());
-						tmp.add(s);
-					}
-				}
-			}
-			this.searchList.setListData(tmp.toArray());
-		}
-	} else if (ownLibraryRadio.isSelected()) {
-		Vector<Song> tmp = new Vector<Song>();
-		List<Song> owned = currUser.getLibrary().owned();
-		for (Song s : owned) {
-			if (s.getName().toLowerCase().startsWith(search.toLowerCase()) || s.getMetaData().get("artist").toLowerCase().startsWith(search.toLowerCase())) {
-//                tmp.add(" " + s.toString());
-				tmp.add(s);
-			}
-		}
-		this.searchList.setListData(tmp.toArray());
+		} 
+	} else
+	{
+		this.searchList.setListData(currUser.getFriends().toArray());
 	}
 }//GEN-LAST:event_searchButtonActionPerformed
 
@@ -1238,20 +1272,33 @@ private void addSongButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN
 		"Album", album,
 		"Year", year
 	};
-	JOptionPane.showMessageDialog(this, inputs, "Add Song", JOptionPane.QUESTION_MESSAGE);
-	while (songName.getText().equals("") || artist.getText().equals("")) {
+	int result = JOptionPane.showConfirmDialog(this, inputs, "Add Song", JOptionPane.OK_CANCEL_OPTION);
+	while ((songName.getText().equals("") || artist.getText().equals("")) && result != JOptionPane.CANCEL_OPTION) {
 		JOptionPane.showMessageDialog(this, "Name and artist cannot be blank", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-		JOptionPane.showMessageDialog(this, inputs, "Add Song", JOptionPane.QUESTION_MESSAGE);
+		result = JOptionPane.showConfirmDialog(this, inputs, "Add Song", JOptionPane.OK_CANCEL_OPTION);
 	}
-	String[][] songMeta = {
-		{"name", songName.getText()},
-		{"artist", artist.getText()},
-		{"genre", genre.getText()},
-		{"album", album.getText()},
-		{"year", year.getText()}
-	};
-	currUser.getLibrary().addSong(new Song(new Metadata(songMeta)));
-	ownedList.setListData(currUser.getLibrary().owned().toArray());
+	
+	if(result != JOptionPane.CANCEL_OPTION)
+	{
+	try
+		{
+			Integer.parseInt(year.getText());
+
+			String[][] songMeta = {
+				{"name", songName.getText()},
+				{"artist", artist.getText()},
+				{"genre", genre.getText()},
+				{"album", album.getText()},
+				{"year", year.getText()}
+			};
+			currUser.getLibrary().addSong(new Song(new Metadata(songMeta)));
+			ownedList.setListData(currUser.getLibrary().owned().toArray());
+		} catch(java.lang.NumberFormatException e)
+		{
+			JOptionPane.showMessageDialog(this, "Invalid Year");
+		}
+	}
+
 }//GEN-LAST:event_addSongButtonActionPerformed
 
 private void removeSongButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeSongButtonActionPerformed
@@ -1317,6 +1364,10 @@ private void songPermButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
 			"Borrow Limit", limit,
 			"Play Limit", plimit
 		};
+		ButtonGroup bg = new ButtonGroup();
+		bg.add(approval);
+		bg.add(noApproval);
+		bg.add(notBorrowable);
 		panel.add(friendList);
 		panel.add(approval);
 		panel.add(noApproval);
@@ -1324,42 +1375,48 @@ private void songPermButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
 		if(JOptionPane.showOptionDialog(this, panel, "Select permission type", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.CANCEL_OPTION)
 			return;
 		User friend = (User) friendList.getSelectedValue();
-		JOptionPane.showMessageDialog(this, inputs);
+		if(friend == null)
+		{
+			JOptionPane.showMessageDialog(this, inputs);
 
-		JPanel panel2 = new JPanel();
-		JRadioButton notDownloadable = new JRadioButton("No");
-		JRadioButton downloadable = new JRadioButton("Yes");
-		downloadable.setSelected(true);
-		ButtonGroup bg = new ButtonGroup();
-		bg.add(notDownloadable);
-		bg.add(downloadable);
-		panel2.add(notDownloadable);
-		panel2.add(downloadable);
+			JPanel panel2 = new JPanel();
+			JRadioButton notDownloadable = new JRadioButton("No");
+			JRadioButton downloadable = new JRadioButton("Yes");
+			downloadable.setSelected(true);
+			ButtonGroup bg2 = new ButtonGroup();
+			bg2.add(notDownloadable);
+			bg2.add(downloadable);
+			panel2.add(notDownloadable);
+			panel2.add(downloadable);
 
-		if(JOptionPane.showOptionDialog(this, panel2, "Can this song be downloaded?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.CANCEL_OPTION)
-			return;
+			if(JOptionPane.showOptionDialog(this, panel2, "Can this song be downloaded?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.CANCEL_OPTION)
+				return;
 
-		if (!limit.getText().matches("[-+]?\\d*\\.?\\d+") || !plimit.getText().matches("[-+]?\\d*\\.?\\d+")) {
-			JOptionPane.showMessageDialog(this, "Invalid limit");
-		} else {
-			//                    System.out.println(Integer.parseInt(limit.getText()));
-			if (approval.isSelected()) {
-				currUser.getLibrary().setBorrowLimit(friend.toString(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.APPROVE);
-			} else if (noApproval.isSelected()) {
-				currUser.getLibrary().setBorrowLimit(friend.toString(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.LIMIT);
-			} else //not borrowable
-			{
-				currUser.getLibrary().setBorrowLimit(friend.toString(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.NO);
+			if (!limit.getText().matches("[-+]?\\d*\\.?\\d+") || !plimit.getText().matches("[-+]?\\d*\\.?\\d+")) {
+				JOptionPane.showMessageDialog(this, "Invalid limit");
+			} else {
+				//                    System.out.println(Integer.parseInt(limit.getText()));
+				if (approval.isSelected()) {
+					currUser.getLibrary().setBorrowLimit(friend.toString(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.APPROVE);
+				} else if (noApproval.isSelected()) {
+					currUser.getLibrary().setBorrowLimit(friend.toString(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.LIMIT);
+				} else //not borrowable
+				{
+					currUser.getLibrary().setBorrowLimit(friend.toString(), s.getName(), Integer.parseInt(limit.getText()), Library.borrowSetting.NO);
+				}
+				currUser.getLibrary().setPlayLimit(friend.toString(), s.getName(), Integer.parseInt(plimit.getText()));
+
+				if(notDownloadable.isSelected())
+				{
+					currUser.getLibrary().setDownloadPermission(friend, false);
+				} else if(downloadable.isSelected())
+				{
+					currUser.getLibrary().setDownloadPermission(friend, true);
+				}
 			}
-			currUser.getLibrary().setPlayLimit(friend.toString(), s.getName(), Integer.parseInt(plimit.getText()));
-
-			if(notDownloadable.isSelected())
-			{
-				currUser.getLibrary().setDownloadPermission(friend, false);
-			} else if(downloadable.isSelected())
-			{
-				currUser.getLibrary().setDownloadPermission(friend, true);
-			}
+		} else
+		{
+			JOptionPane.showMessageDialog(this, "No friend selected");
 		}
 	}
 }//GEN-LAST:event_songPermButtonActionPerformed
@@ -1381,18 +1438,37 @@ private void borrowButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 	List<Song> selected = searchList.getSelectedValuesList();
 	for (Song s : selected) {
 //        System.out.println(s.toString());
+		if(currUser.getLibrary().isOwned(s))
+			JOptionPane.showMessageDialog(this, "You own this song.");
 		List<User> friends = currUser.getFriends();
+		boolean belongsToFriend = false;
 		for (User f : friends) {
 			if (f.getLibrary().isOwned(s)) {
+				belongsToFriend = true;
 				if (f.getLibrary().checkIfBorrowable(currUser, s)) {
 
 					if (f.getLibrary().isLIMIT(f.getLibrary().getSongBorrowLimit(currUser, s).fst)) {
 						if (f.getLibrary().loaned().contains(s)) {
-							JOptionPane.showMessageDialog(this, "You have been added to wait list");
+//							if(currUser.getLibrary().get)
+							if(f.getLibrary().hasWaitingList(s))
+							{
+								if(f.getLibrary().getWaitingListUsers(s).contains(currUser))
+								{
+									JOptionPane.showMessageDialog(this, "You are already on the wait list");
+								} else
+								{
+									JOptionPane.showMessageDialog(this, "You have been added to wait list");
+									f.getLibrary().sendBorrow(currUser, s);
+								}
+							} else
+							{
+								JOptionPane.showMessageDialog(this, "You have been added to wait list");
+								f.getLibrary().sendBorrow(currUser, s);
+							}
 						} else {
 							JOptionPane.showMessageDialog(this, "Borrow successful!");
+							f.getLibrary().sendBorrow(currUser, s);
 						}
-						f.getLibrary().sendBorrow(currUser, s);
 						s.incrementBorrowedCount();
 					} else {
 						f.getLibrary().createBorrowRequest(currUser, s);
@@ -1404,10 +1480,29 @@ private void borrowButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 				}
 			}
 		}
+		if(!belongsToFriend)
+			JOptionPane.showMessageDialog(this, "You do not have the permissions to borrow " + s.getName());
 	}
 	this.borrowedList.setListData(currUser.getLibrary().borrowed().toArray());
 //    this.loanedList.setListData(currUser.getLibrary().loaned().toArray());
 
+	//top borrowed
+	List<Song> topBorrowed = new ArrayList<Song>();
+	Enumeration<String> allUsers = uMngr.getUsers().keys();
+	while(allUsers.hasMoreElements())
+	{
+		String s = allUsers.nextElement();
+		topBorrowed.addAll(uMngr.findUser(s).getLibrary().toSortedList("borrowed"));
+	}
+	Collections.sort(topBorrowed, new Song.SongComparator("borrowed"));
+	List<Song> top5Borrowed = new ArrayList<Song>();
+	for(int i = topBorrowed.size() - 1; i >= topBorrowed.size() - 5; --i)
+	{
+		if(i >= 0)
+			top5Borrowed.add(topBorrowed.get(i));
+//				System.out.println(topPlayed.get(i) + "" + topPlayed.get(i).getPlayedCount());
+	}
+	this.topBorrowedList.setListData(top5Borrowed.toArray());
 }//GEN-LAST:event_borrowButtonActionPerformed
 
 private void allowBorrowButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_allowBorrowButtonActionPerformed
@@ -1444,6 +1539,24 @@ private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
 					currUser.getLibrary().play(selected);
 					currentlyPlayingLabel.setText("Currently Playing: " + selected.getName());
 					selected.incrementPlayedCount();
+					//top played
+					List<Song> topPlayed = new ArrayList<Song>();
+					Enumeration<String> allUsers = uMngr.getUsers().keys();
+					while(allUsers.hasMoreElements())
+					{
+						String s = allUsers.nextElement();
+						topPlayed.addAll(uMngr.findUser(s).getLibrary().toSortedList("played"));
+					}
+					Collections.sort(topPlayed, new Song.SongComparator("Played"));
+					List<Song> top5Played = new ArrayList<Song>();
+					for(int i = topPlayed.size() - 1; i >= topPlayed.size() - 5; --i)
+					{
+						if(i >= 0)
+							top5Played.add(topPlayed.get(i));
+		//				System.out.println(topPlayed.get(i) + "" + topPlayed.get(i).getPlayedCount());
+					}
+					this.topPlayedList.setListData(top5Played.toArray());
+
 				}
 			} else {
 				JOptionPane.showMessageDialog(this, "This song is loaned");
@@ -1664,10 +1777,14 @@ private void takeBackButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
 
     private void songDetailsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_songDetailsButtonActionPerformed
 		JPanel panel = new JPanel();
+		ButtonGroup bg = new ButtonGroup();
 		JRadioButton owned = new JRadioButton("owned song");
 		JRadioButton borrowed = new JRadioButton("borrowed song");
 		JRadioButton loaned = new JRadioButton("loaned song");
 
+		bg.add(owned);
+		bg.add(borrowed);
+		bg.add(loaned);
 		panel.add(owned);
 		panel.add(borrowed);
 		panel.add(loaned);
@@ -1676,64 +1793,87 @@ private void takeBackButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
 		if (result == JOptionPane.OK_OPTION) {
 			if (owned.isSelected()) {
 				Song s = (Song) ownedList.getSelectedValue();
+				if(s != null)
+				{
+					JPanel panel2 = new JPanel();
+					JList list = new JList();
 
-				JPanel panel2 = new JPanel();
-				JList list = new JList();
+					Vector<String> tmp = new Vector<String>();
 
-				Vector<String> tmp = new Vector<String>();
+					String tmpString = s.getName() != null ? s.getName() : "";
+					tmp.add("Name: " + tmpString);
+					tmpString = s.get("artist") != null ? s.get("artist") : "";
+					tmp.add("Artist: " + tmpString);
+					tmpString = s.get("album") != null ? s.get("album") : "";
+					tmp.add("Album: " + tmpString);
+					tmpString = s.get("genre") != null ? s.get("genre") : "";
+					tmp.add("Genre: " + tmpString);
+					tmpString = s.get("composer") != null ? s.get("composer") : "";
+					tmp.add("Composer: " + tmpString);
+					tmpString = s.get("year") != null ? s.get("year") : "";
+					tmp.add("Year: " + tmpString);
 
-				tmp.add("Name: " + s.getName());
-				tmp.add("Artist: " + s.get("artist"));
-				tmp.add("Album: " + s.get("album"));
-				tmp.add("Genre: " + s.get("genre"));
-				tmp.add("Composer: " + s.get("composer"));
-				tmp.add("Year: " + s.getYear());
+					list.setListData(tmp.toArray());
+					panel2.add(list);
 
-				list.setListData(tmp.toArray());
-				panel2.add(list);
-
-				JOptionPane.showOptionDialog(this, panel2, "Song details", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+					JOptionPane.showOptionDialog(this, panel2, "Song details", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+				} else
+				{
+					JOptionPane.showMessageDialog(this, "Nothing selected.");
+				}
 			} else if (borrowed.isSelected()) {
 				Song s = (Song) borrowedList.getSelectedValue();
+				if(s != null)
+				{
 
-				JPanel panel2 = new JPanel();
-				JList list = new JList();
+					JPanel panel2 = new JPanel();
+					JList list = new JList();
 
-				Vector<String> tmp = new Vector<String>();
+					Vector<String> tmp = new Vector<String>();
 
-				tmp.add("Name: " + s.getName());
-				tmp.add("Artist: " + s.get("artist"));
-				tmp.add("Album: " + s.get("album"));
-				tmp.add("Genre: " + s.get("genre"));
-				tmp.add("Composer: " + s.get("composer"));
-				tmp.add("Year: " + s.getYear());
-				tmp.add("Borrowed from: " + currUser.getLibrary().getOwnerofBorrowed(s));
-				tmp.add("Plays left: " + currUser.getLibrary().getPlaysLeftOfBorrowed(s));
+					tmp.add("Name: " + s.getName());
+					tmp.add("Artist: " + s.get("artist"));
+					tmp.add("Album: " + s.get("album"));
+					tmp.add("Genre: " + s.get("genre"));
+					tmp.add("Composer: " + s.get("composer"));
+					tmp.add("Year: " + s.getYear());
+					tmp.add("Borrowed from: " + currUser.getLibrary().getOwnerofBorrowed(s));
+					tmp.add("Plays left: " + currUser.getLibrary().getPlaysLeftOfBorrowed(s));
 
-				list.setListData(tmp.toArray());
-				panel2.add(list);
+					list.setListData(tmp.toArray());
+					panel2.add(list);
 
-				JOptionPane.showOptionDialog(this, panel2, "Song details", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+					JOptionPane.showOptionDialog(this, panel2, "Song details", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+				} else
+				{
+					JOptionPane.showMessageDialog(this, "Nothing selected.");
+				}
 			} else if (loaned.isSelected()) {
 				Song s = (Song) loanedList.getSelectedValue();
+				if(s != null)
+				{
 
-				JPanel panel2 = new JPanel();
-				JList list = new JList();
+					JPanel panel2 = new JPanel();
+					JList list = new JList();
 
-				Vector<String> tmp = new Vector<String>();
+					Vector<String> tmp = new Vector<String>();
 
-				tmp.add("Name: " + s.getName());
-				tmp.add("Artist: " + s.get("artist"));
-				tmp.add("Album: " + s.get("album"));
-				tmp.add("Genre: " + s.get("genre"));
-				tmp.add("Composer: " + s.get("composer"));
-				tmp.add("Year: " + s.getYear());
-//				tmp.add("Loaned to: " + currUser.getLibrary().)
+					tmp.add("Name: " + s.getName());
+					tmp.add("Artist: " + s.get("artist"));
+					tmp.add("Album: " + s.get("album"));
+					tmp.add("Genre: " + s.get("genre"));
+					tmp.add("Composer: " + s.get("composer"));
+					tmp.add("Year: " + s.getYear());
+	//				tmp.add("Loaned to: " + currUser.getLibrary().)
 
-				list.setListData(tmp.toArray());
-				panel2.add(list);
+					list.setListData(tmp.toArray());
+					panel2.add(list);
 
-				JOptionPane.showOptionDialog(this, panel2, "Song details", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+					JOptionPane.showOptionDialog(this, panel2, "Song details", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+				} else
+				{
+					JOptionPane.showMessageDialog(this, "Nothing selected.");
+				}
 			} else {
 				JOptionPane.showMessageDialog(this, "No list selected.");
 			}
@@ -1802,6 +1942,24 @@ private void takeBackButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
 		}
 
 		this.downloadedList.setListData(currUser.getLibrary().downloaded().toArray());
+
+		//top downloaded
+		List<Song> topDownloaded = new ArrayList<Song>();
+		Enumeration<String> allUsers = uMngr.getUsers().keys();
+		while(allUsers.hasMoreElements())
+		{
+			String s = allUsers.nextElement();
+			topDownloaded.addAll(uMngr.findUser(s).getLibrary().toSortedList("downloaded"));
+		}
+		Collections.sort(topDownloaded, new Song.SongComparator("downloaded"));
+		List<Song> top5Downloaded = new ArrayList<Song>();
+		for(int i = topDownloaded.size() - 1; i >= topDownloaded.size() - 5; --i)
+		{
+			if(i >= 0)
+				top5Downloaded.add(topDownloaded.get(i));
+//				System.out.println(topPlayed.get(i) + "" + topPlayed.get(i).getPlayedCount());
+		}
+		this.topDownloadedList.setListData(top5Downloaded.toArray());
     }//GEN-LAST:event_downloadSongsButtonActionPerformed
 
     private void passTimeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passTimeButtonActionPerformed
@@ -2060,5 +2218,6 @@ private void takeBackButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.JList topPlayedList;
     private javax.swing.JPanel trendingPanel;
     private javax.swing.JTextField usernameInput;
+    private javax.swing.JLabel welcomeLabel;
     // End of variables declaration//GEN-END:variables
 }
