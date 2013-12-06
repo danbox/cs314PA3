@@ -1399,7 +1399,7 @@ private void songPermButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
 		if(JOptionPane.showOptionDialog(this, panel, "Select permission type", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.CANCEL_OPTION)
 			return;
 		User friend = (User) friendList.getSelectedValue();
-		if(friend == null)
+		if(friend != null)
 		{
 			JOptionPane.showMessageDialog(this, inputs);
 
@@ -1593,6 +1593,24 @@ private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
 				currUser.getLibrary().play(selected);
 				currentlyPlayingLabel.setText("Currently Playing: " + selected.getName());
 				selected.incrementPlayedCount();
+				
+				//top played
+				List<Song> topPlayed = new ArrayList<Song>();
+				Enumeration<String> allUsers = uMngr.getUsers().keys();
+				while(allUsers.hasMoreElements())
+				{
+					String s = allUsers.nextElement();
+					topPlayed.addAll(uMngr.findUser(s).getLibrary().toSortedList("played"));
+				}
+				Collections.sort(topPlayed, new Song.SongComparator("Played"));
+				List<Song> top5Played = new ArrayList<Song>();
+				for(int i = topPlayed.size() - 1; i >= topPlayed.size() - 5; --i)
+				{
+					if(i >= 0)
+						top5Played.add(topPlayed.get(i));
+	//				System.out.println(topPlayed.get(i) + "" + topPlayed.get(i).getPlayedCount());
+				}
+				this.topPlayedList.setListData(top5Played.toArray());
 			}
 		}
 	}
